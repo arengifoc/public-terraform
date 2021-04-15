@@ -1,0 +1,7 @@
+terraform {
+  backend "s3" {
+    bucket = "arengifoc-terraform-states"
+    key    = "aws-using-own-modules/terraform.tfstate"
+    region = "us-east-1"
+  }
+}

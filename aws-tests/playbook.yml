@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Crear usuarios
+      user: name={{item}}
+      with_items:
+        - arengifo
+        - administrador
+        - operador
+

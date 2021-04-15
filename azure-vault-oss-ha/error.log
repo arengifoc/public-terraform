@@ -1,0 +1,19 @@
+azurerm_resource_group.secondary_rg: Destruction complete after 51s
+module.primary_bastion.azurerm_virtual_machine.this_vm[0]: Destruction complete after 1m35s
+module.primary_bastion.azurerm_network_interface.this_nic[0]: Destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-1e891cf53526/resourceGroups/RG_PRIMARY/providers/Microsoft.Network/networkInterfaces/nic_bastion-pri]
+module.primary_bastion.azurerm_network_interface.this_nic[0]: Destruction complete after 2s
+module.primary_bastion.azurerm_public_ip.this_pip[0]: Destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-1e891cf53526/resourceGroups/RG_PRIMARY/providers/Microsoft.Network/publicIPAddresses/pip_bastion-pri]
+module.primary_bastion.azurerm_public_ip.this_pip[0]: Destruction complete after 2s
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Still destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-...ft.Compute/virtualMachines/vault-pri_2, 1m40s elapsed]
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Still destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-...ft.Compute/virtualMachines/vault-pri_2, 1m50s elapsed]
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Still destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-...ft.Compute/virtualMachines/vault-pri_2, 2m0s elapsed]
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Still destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-...ft.Compute/virtualMachines/vault-pri_2, 2m10s elapsed]
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Still destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-...ft.Compute/virtualMachines/vault-pri_2, 2m20s elapsed]
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Still destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-...ft.Compute/virtualMachines/vault-pri_2, 2m30s elapsed]
+module.primary_vault.azurerm_virtual_machine.this_vm[1]: Destruction complete after 2m35s
+azurerm_user_assigned_identity.identity: Destroying... [id=/subscriptions/31336f26-ded8-4ebe-8d25-1e891cf53526/resourcegroups/RG_PRIMARY/providers/Microsoft.ManagedIdentity/userAssignedIdentities/manage-backups]
+azurerm_user_assigned_identity.identity: Destruction complete after 6s
+
+Error: Error waiting for update of Network Interface "nic_vault-pri-3" (Resource Group "RG_PRIMARY"): Code="OperationNotAllowed" Message="Operation 'startTenantUpdate' is not allowed on VM 'vault-pri_3' since the VM is marked for deletion. You can only retry the Delete operation (or wait for an ongoing one to complete)." Details=[]
+
+

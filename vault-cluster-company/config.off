@@ -1,0 +1,85 @@
+# data "template_file" "primary_instance_setup" {
+#   template = file("${path.module}/files/instance_setup.tpl")
+#   vars = {
+#     tpl_git_username        = urlencode(var.git_username)
+#     tpl_git_token           = var.git_token
+#     tpl_git_repository_path = var.git_repository_path
+#     tpl_consul_version      = var.consul_version
+#     tpl_vault_version       = var.vault_version
+#     tpl_consul_dc           = var.primary_consul_dc
+#     tpl_vault_hostname      = var.primary_vault_hostname
+#     tpl_vault_tls_disable   = var.vault_tls_disable
+#     tpl_consul_nodes        = join(",", formatlist("%s-%s/%s", var.primary_consul_instance_name, range(1, local.primary_consul_num_nodes + 1), local.primary_consul_ips))
+#     tpl_vault_nodes         = join(",", formatlist("%s-%s/%s", var.primary_vault_instance_name, range(1, local.primary_vault_num_nodes + 1), local.primary_vault_ips))
+#     tpl_vpc_match_host      = local.primary_vpc_match_host
+#     tpl_os_admin_user       = var.os_admin_user
+#     tpl_os_admin_password   = var.os_admin_password
+#     tpl_aws_access_key      = aws_iam_access_key.iam_access_key.id
+#     tpl_aws_secret_key      = aws_iam_access_key.iam_access_key.secret
+#     tpl_aws_kms_key_id      = aws_kms_key.primary_vault_key[0].key_id
+#     tpl_aws_region          = var.primary_region
+#     tpl_ca_cert_file        = fileexists("${path.module}/${var.ca_cert_file}") == true ? file("${path.module}/${var.ca_cert_file}") : ""
+#     tpl_server_cert_file    = fileexists("${path.module}/${var.server_cert_file}") == true ? file("${path.module}/${var.server_cert_file}") : ""
+#     tpl_server_key_file     = fileexists("${path.module}/${var.server_key_file}") == true ? file("${path.module}/${var.server_key_file}") : ""
+#   }
+# }
+
+# data "template_file" "secondary_instance_setup" {
+#   count    = local.secondary_vault_num_nodes > 0 ? 1 : 0
+#   template = file("${path.module}/files/instance_setup.tpl")
+#   vars = {
+#     tpl_git_username        = urlencode(var.git_username)
+#     tpl_git_token           = var.git_token
+#     tpl_git_repository_path = var.git_repository_path
+#     tpl_consul_version      = var.consul_version
+#     tpl_vault_version       = var.vault_version
+#     tpl_consul_dc           = var.secondary_consul_dc
+#     tpl_vault_hostname      = var.secondary_vault_hostname
+#     tpl_vault_tls_disable   = var.vault_tls_disable
+#     tpl_consul_nodes        = join(",", formatlist("%s-%s/%s", var.secondary_consul_instance_name, range(1, local.secondary_consul_num_nodes + 1), local.secondary_consul_ips))
+#     tpl_vault_nodes         = join(",", formatlist("%s-%s/%s", var.secondary_vault_instance_name, range(1, local.secondary_vault_num_nodes + 1), local.secondary_vault_ips))
+#     tpl_vpc_match_host      = local.secondary_vpc_match_host
+#     tpl_os_admin_user       = var.os_admin_user
+#     tpl_os_admin_password   = var.os_admin_password
+#     tpl_aws_access_key      = aws_iam_access_key.iam_access_key.id
+#     tpl_aws_secret_key      = aws_iam_access_key.iam_access_key.secret
+#     tpl_aws_kms_key_id      = local.secondary_vault_num_nodes > 0 ? aws_kms_key.secondary_vault_key[0].key_id : null
+#     tpl_aws_region          = var.secondary_region
+#     tpl_ca_cert_file        = fileexists("${path.module}/${var.ca_cert_file}") == true ? file("${path.module}/${var.ca_cert_file}") : ""
+#     tpl_server_cert_file    = fileexists("${path.module}/${var.server_cert_file}") == true ? file("${path.module}/${var.server_cert_file}") : ""
+#     tpl_server_key_file     = fileexists("${path.module}/${var.server_key_file}") == true ? file("${path.module}/${var.server_key_file}") : ""
+#   }
+# }
+
+  # primary_bastion_ip = length(var.primary_public_subnet_ids) > 0 ? cidrhost(local.primary_public_subnet_cidrs[0], var.bastion_ip_octet) : null
+  # # primary_consul_ips           = length(var.primary_consul_ips) > 0 ? var.primary_consul_ips : [for cidr in slice(local.primary_private_subnet_cidrs, 0, local.primary_consul_num_nodes) : cidrhost(cidr, var.consul_ip_octet)]
+  # primary_consul_num_nodes     = length(var.primary_consul_ips) > 0 ? length(var.primary_consul_ips) : var.primary_consul_num_nodes
+  # primary_network              = split("/", local.primary_vpc_cidr)[0]
+  # primary_numbits              = split("/", local.primary_vpc_cidr)[1]
+  # primary_post_network         = join(".", slice(split(".", local.primary_network), local.primary_pre_octets, 4))
+  # primary_pre_network          = join(".", slice(split(".", local.primary_network), 0, local.primary_pre_octets))
+  # primary_pre_octets           = ceil((local.primary_numbits < 1 ? 8 : (local.primary_numbits >= 17 ? 24 : local.primary_numbits)) / 8)
+  # primary_private_subnet_cidrs = [for key, value in data.aws_subnet.primary_private : lookup(value, "cidr_block", null)]
+  # # primary_private_subnet_ids     = sort(var.primary_private_subnet_ids)
+  # primary_public_subnet_cidrs = [for key, value in data.aws_subnet.primary_public : lookup(value, "cidr_block", null)]
+  # # primary_public_subnet_ids      = sort(var.primary_public_subnet_ids)
+  # # primary_vault_ips       = length(var.primary_vault_ips) > 0 ? var.primary_vault_ips : [for cidr in slice(local.primary_private_subnet_cidrs, 0, local.primary_vault_num_nodes) : cidrhost(cidr, var.vault_ip_octet)]
+  # primary_vault_num_nodes = length(var.primary_vault_ips) > 0 ? length(var.primary_vault_ips) : var.primary_vault_num_nodes
+  # primary_vpc_cidr        = data.aws_vpc.primary_selected.cidr_block
+  # primary_vpc_match_host  = join(".", [local.primary_pre_network, replace(local.primary_post_network, "/([0-9]*)/", "*")])
+  # secondary_bastion_ip    = length(var.secondary_public_subnet_ids) > 0 ? cidrhost(local.secondary_public_subnet_cidrs[0], var.bastion_ip_octet) : null
+  # # secondary_consul_ips           = length(var.secondary_consul_ips) > 0 ? var.secondary_consul_ips : [for cidr in slice(local.secondary_private_subnet_cidrs, 0, local.secondary_consul_num_nodes) : cidrhost(cidr, var.consul_ip_octet)]
+  # secondary_consul_num_nodes     = length(var.secondary_consul_ips) > 0 ? length(var.secondary_consul_ips) : var.secondary_consul_num_nodes
+  # secondary_network              = split("/", local.secondary_vpc_cidr)[0]
+  # secondary_numbits              = split("/", local.secondary_vpc_cidr)[1]
+  # secondary_post_network         = join(".", slice(split(".", local.secondary_network), local.secondary_pre_octets, 4))
+  # secondary_pre_network          = join(".", slice(split(".", local.secondary_network), 0, local.secondary_pre_octets))
+  # secondary_pre_octets           = ceil((local.secondary_numbits < 1 ? 8 : (local.secondary_numbits >= 17 ? 24 : local.secondary_numbits)) / 8)
+  # secondary_private_subnet_cidrs = [for key, value in data.aws_subnet.secondary_private : lookup(value, "cidr_block", null)]
+  # # secondary_private_subnet_ids   = sort(var.secondary_private_subnet_ids)
+  # secondary_public_subnet_cidrs = [for key, value in data.aws_subnet.secondary_public : lookup(value, "cidr_block", null)]
+  # # secondary_public_subnet_ids    = sort(var.secondary_public_subnet_ids)
+  # # secondary_vault_ips       = length(var.secondary_vault_ips) > 0 ? var.secondary_vault_ips : [for cidr in slice(local.secondary_private_subnet_cidrs, 0, local.secondary_vault_num_nodes) : cidrhost(cidr, var.vault_ip_octet)]
+  # secondary_vault_num_nodes = length(var.secondary_vault_ips) > 0 ? length(var.secondary_vault_ips) : var.secondary_vault_num_nodes
+  # secondary_vpc_cidr        = data.aws_vpc.secondary_selected.cidr_block
+  # secondary_vpc_match_host  = join(".", [local.secondary_pre_network, replace(local.secondary_post_network, "/([0-9]*)/", "*")])

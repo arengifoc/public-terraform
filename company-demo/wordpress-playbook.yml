@@ -1,0 +1,77 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+    #
+    # Tareas de instalacion
+    #
+    - name: Actualizando la cache de APT
+      apt: update_cache=yes cache_valid_time=86400
+
+    - name: Instalando dependencias
+      apt: name={{item}} state=present
+      with_items:
+        - mariadb-client
+        - php
+        - php-fpm
+        - php-mysql
+        - php-xml
+        - python-mysqldb
+        - unzip
+
+    - name: Desinstalando Apache2
+      apt: name={{item}} state=absent purge=yes
+      with_items:
+        - apache2
+        - apache2-bin
+        - apache2-data
+
+    - name: Instalando nginx
+      apt: name=nginx state=present
+      
+    #
+    # Tareas de configuracion
+    #
+    - name: Copiar plantilla de nginx
+      template: src=templates/nginx/default dest=/etc/nginx/sites-available/default
+      notify: Reiniciar nginx
+
+    - name: Descargar wordpress
+      get_url:
+        url: https://wordpress.org/latest.zip
+        dest: /tmp/latest.zip
+        mode: 0440
+
+    - name: Descomprimiendo tarball
+      unarchive: src=/tmp/latest.zip copy=no dest=/var/www/
+
+    - name: Renombrando directorio de wordpress
+      command: chdir=/var/www creates=/var/www/blog.company.com/wp-settings.php mv wordpress blog.company.com
+
+    - name: Cargar archivo de variables con clave de MySQL
+      include_vars: "{{item}}"
+      with_items:
+        - vars/mysql_host.yml
+        - vars/mysql_db.yml
+        - vars/mysql_user.yml
+        - vars/mysql_password.yml
+
+    - name: Mostrar valor de clave en pantalla
+      debug: msg="Clave de MySQL {{mysql_password}}"
+
+    - name: Asignacion de permisos para Wordpress
+      file: owner=root group=www-data mode=0775 path=/var/www/blog.company.com
+
+    - name: Ajuste de permisos y propietario de directorios Web
+      file: owner=root group=www-data mode="g+w" recurse=yes path=/var/www/blog.company.com/wp-content
+
+    - name: Configurando Wordpress
+      template: src=templates/wordpress/wp-config.php dest=/var/www/blog.company.com/wp-config.php owner=www-data group=www-data mode=0664
+
+    - name: Copiar plantilla de my.cnf
+      template: src=templates/mysql/my.cnf dest=/root/.my.cnf
+
+  handlers:
+    - name: Reiniciar nginx
+      service: name=nginx state=restarted

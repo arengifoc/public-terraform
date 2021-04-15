@@ -1,0 +1,11 @@
+# /subscriptions/f502e271-e2ec-49cc-ae25-35e7c8ee62ca/resourceGroups/ASMT_CloudCOMPANY
+# az group list --query "[?name=='ASMT_CloudCOMPANY'].[name,id]"
+# terraform import azurerm_resource_group.ASMT_CloudCOMPANY /subscriptions/f502e271-e2ec-49cc-ae25-35e7c8ee62ca/resourceGroups/ASMT_CloudCOMPANY
+resource "azurerm_resource_group" "ASMT_CloudCOMPANY" {
+}
+
+# /subscriptions/f502e271-e2ec-49cc-ae25-35e7c8ee62ca/resourceGroups/RG_CloudPublicVPN-Prod/providers/Microsoft.Network/virtualNetworks/CloudPublicVPN-Vnet/subnets/SubNetVPN01
+# az network nic list --query "[?name=='srvterminal01381'].[{Nombre:name, ID:id, SubnetID:ipConfigurations[].subnet.id}]"
+# terraform import azurerm_subnet.SubNetVPN01 /subscriptions/f502e271-e2ec-49cc-ae25-35e7c8ee62ca/resourceGroups/RG_CloudPublicVPN-Prod/providers/Microsoft.Network/virtualNetworks/CloudPublicVPN-Vnet/subnets/SubNetVPN01
+resource "azurerm_subnet" "SubNetVPN01" {
+}

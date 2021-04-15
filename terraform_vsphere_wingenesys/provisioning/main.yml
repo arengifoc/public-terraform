@@ -1,0 +1,66 @@
+---
+- hosts: all
+  gather_facts: false
+  vars:
+    - ansible_user: administrator
+    - ansible_password: P4k42019..
+    - ansible_connection: winrm
+    - ansible_port: 5986
+    - ansible_winrm_server_cert_validation: ignore
+  port: 5986
+  tasks:
+   
+    - name: Descargar WMF 5.1
+      win_get_url:
+        url: https://download.microsoft.com/download/6/F/5/6F5FF66C-6775-42B0-86C4-47D41F2DA187/Win8.1AndW2K12R2-KB3191564-x64.msu
+        dest: C:\Windows\temp
+        force: no
+
+    - name: Instalar WMF 5.1
+      win_hotfix:
+        source: C:\Windows\temp\Win8.1AndW2K12R2-KB3191564-x64.msu
+        state: present
+        register: install_wmf
+    
+    - win_reboot:
+        reboot_timeout: 120
+      when: install_wmf.reboot_required and install_wmf is defined
+
+    - name: Firewall activado
+      win_firewall:
+        state: enabled
+        profiles:
+          - Domain
+          - Public
+          - Private
+        tags: enable_firewall
+
+    - name: Abrir firewall para servicio Remote Desktop
+      win_firewall_rule:
+        state: present
+        profiles:
+          - Domain
+          - Public
+          - Private
+        name: Remote Desktop
+        localport: 3389
+        action: allow
+        direction: in
+        protocol: tcp
+        enabled: yes
+
+    - name: Abrir firewall para respuestas ICMP
+      win_firewall_rule:
+        state: present
+        profiles:
+          - Domain
+          - Public
+          - Private
+        name: ICMP (Ping)
+        action: allow
+        direction: in
+        protocol: icmpv4:8,any
+        enabled: yes
+
+    #- name: Generalizar la imagen de Windows
+    #  win_shell: C:\windows\system32\sysprep\sysprep.exe /generalize /oobe /unattend:A:\Autounattend_sysprep.xml /quit

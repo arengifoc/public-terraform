@@ -1,0 +1,43 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Instalar paquetes base en Debian/Ubuntu
+      apt: update_cache=yes state=present name={{item}}
+      with_items:
+        - at
+        - finger
+        - telnet
+        - tcpdump
+      when: ansible_os_family == 'Debian'
+
+    - name: Instalar paquetes base en RedHat/CentOS
+      yum: state=present name={{item}}
+      with_items:
+        - at
+        - finger
+        - telnet
+        - tcpdump
+      when: ansible_os_family == 'RedHat'
+
+    - name: Crear grupo de administradores
+      group: name=admins state=present
+
+    - name: Crear usuarios administradores
+      user:
+        name: "{{item}}"
+        group: admins
+        state: present
+        shell: /bin/bash
+        create_home: yes
+      with_items:
+        - arengifo
+        - cvegas
+        - eflores
+        - jpaz
+
+    - name: Brindar acceso total a root con sudo al grupo de administradores
+      lineinfile:
+        path: /etc/sudoers
+        regexp: '^%admins.*ALL.*NOPASSWD.*ALL'
+        line: '%admins ALL=(ALL) NOPASSWD: ALL'

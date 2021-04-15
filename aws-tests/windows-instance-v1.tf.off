@@ -1,0 +1,7 @@
+resource "aws_instance" "vm-wintest01" {
+    # Asignacion manual de la AMI
+    # Microsoft Windows Server 2016 Base
+    ami = "ami-041114ddee4a98333"
+
+    instance_type = "t2.medium"
+}
