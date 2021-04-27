@@ -1,48 +1,52 @@
-# remote state using s3
-terraform {
-  backend "s3" {
-    bucket = "sysadmin-company-arengifoc-terraform-states"
-    key    = "dev/gke-cluster/terraform.tfstate"
-    region = "us-east-1"
-  }
+locals {
+  prefix = "${var.name_prefix}-${random_id.suffix.hex}"
 }
 
 provider "google" {
-  credentials = file(var.CREDS_FILE)
-  project     = var.GCP_PROJECT
-  region      = var.GCP_REGION
+  project     = var.gcp_project
+  region      = var.gcp_region
+  credentials = var.creds_file != null ? file(var.creds_file) : "~/.ssh/${var.gcp_project}_account.json"
 }
 
-resource "google_container_cluster" "gkecluster" {
-  name     = var.GKE_CLUSTER_NAME
-  location = var.GCP_REGION
+resource "google_container_cluster" "this" {
+  name        = "${local.prefix}-cluster"
+  location    = var.cluster_location
+  description = var.cluster_description
 
-  # Trabajaremos sin el node pool definido por defecto dentro del cluster,
-  # sino usando uno propio definido lineas abajo
+  # Let's remove default node pool and create a custom one
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  # Configuracion de autenticacion
+  # Auth settings
   master_auth {
-    username = var.GKE_MASTER_USER
-    password = var.GKE_MASTER_PASSWORD
+    # username = "${local.prefix}-admin"
+    # password = random_password.gke.result
+    # username = null
+    # password = null
 
     client_certificate_config {
-      issue_client_certificate = false
+      issue_client_certificate = true
     }
   }
 }
 
-# Node pool personalizado
+# Custom node pool
 resource "google_container_node_pool" "node_pool" {
-  name       = var.NODE_POOL
-  location   = var.GCP_REGION
-  cluster    = google_container_cluster.gkecluster.name
-  node_count = var.GKE_NODE_COUNT
+  name       = "${local.prefix}-node-pool"
+  location   = var.cluster_location
+  cluster    = google_container_cluster.this.name
+  node_count = var.gke_node_count
+
+  autoscaling {
+    min_node_count = var.min_node_count
+    max_node_count = var.max_node_count
+  }
 
   node_config {
-    # Tipo de instancia a usar en los worker nodes
-    machine_type = var.MACHINE_TYPE
+    # Instance type for worker nodes
+    machine_type = var.machine_type
+
+    # Autoscaling settings
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -53,4 +57,12 @@ resource "google_container_node_pool" "node_pool" {
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
+}
+
+resource "random_id" "suffix" {
+  byte_length = 2
+}
+
+resource "random_password" "gke" {
+  length = 16
 }
