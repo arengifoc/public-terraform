@@ -105,3 +105,37 @@ variable "sg_rules" {
   default     = ["22,tcp,0.0.0.0"]
 }
 
+variable "root_block_device_size" {
+  description = "Size of the EBS root block device"
+  type        = number
+  default     = 10
+}
+
+variable "root_block_device_type" {
+  description = "Type of the EBS root block device"
+  type        = string
+  default     = "gp2"
+}
+
+variable "iam_path" {
+  description = "Path where the IAM role and policy must be created"
+  type        = string
+  default     = "/"
+}
+
+variable "iam_json_policy" {
+  description = "JSON document used for creating the IAM policy that will be attached to the EC2 instance profile"
+  type        = string
+  default     = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "*",
+      "Resource": "*",
+      "Effect": "Deny"
+    }
+  ]
+}
+EOF
+}

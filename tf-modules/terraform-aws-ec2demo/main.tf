@@ -34,7 +34,14 @@ module "ec2" {
   subnet_ids                  = [var.subnet_id]
   associate_public_ip_address = var.assign_public_ip
   user_data                   = var.user_data
+  iam_instance_profile        = aws_iam_instance_profile.instance_profile.id
   tags                        = local.tags
+  root_block_device = [
+    {
+      volume_size = var.root_block_device_size
+      volume_type = var.root_block_device_type
+    }
+  ]
 }
 
 module "sg_ec2" {
@@ -63,6 +70,9 @@ module "sg_ec2" {
 #############
 resource "random_id" "this" {
   byte_length = 2
+  keepers = {
+    desired_os = var.desired_os
+  }
 }
 
 resource "aws_key_pair" "this" {
@@ -73,9 +83,55 @@ resource "aws_key_pair" "this" {
   tags       = local.tags
 }
 
+resource "aws_iam_role" "iam_role" {
+  name               = "role-${local.ec2_prefix}"
+  path               = var.iam_path
+  assume_role_policy = data.aws_iam_policy_document.assumerole_policy_document.json
+  tags               = local.tags
+}
+
+resource "aws_iam_policy" "iam_role_policy" {
+  name   = "policy-${local.ec2_prefix}"
+  path   = var.iam_path
+  policy = var.iam_json_policy
+  tags   = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment" {
+  role       = aws_iam_role.iam_role.name
+  policy_arn = aws_iam_policy.iam_role_policy.arn
+}
+
+resource "aws_iam_instance_profile" "instance_profile" {
+  name = "instanceprofile-${local.ec2_prefix}"
+  role = aws_iam_role.iam_role.name
+}
+
 ################
 # Data sources #
 ################
+
+data "aws_iam_policy_document" "ec2_iam_policy_document" {
+  statement {
+    sid = "EC2ReadOnly"
+    actions = [
+      "ec2:*",
+      "s3:*"
+    ]
+    resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "assumerole_policy_document" {
+  statement {
+    sid     = "AssumeRole"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
 
 data "aws_subnet" "selected" {
   id = var.subnet_id

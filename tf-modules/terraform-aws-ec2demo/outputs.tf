@@ -13,6 +13,11 @@ output "instance_keypair" {
   value       = aws_key_pair.this[0].key_name
 }
 
+output "instance_type" {
+  description = "EC2 instance type"
+  value       = var.instance_type
+}
+
 output "instance_private_ips" {
   description = "Private IP addresses assigned to the EC2 instances"
   value       = module.ec2.private_ip
