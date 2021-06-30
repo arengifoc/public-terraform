@@ -32,3 +32,8 @@ output "instance_names" {
   description = "Name of the EC2 instances as per the Name tag"
   value       = [for tag in module.ec2.tags : lookup(tag, "Name", "")]
 }
+
+output "instance_public_dns" {
+  description = "Public DNS addresses assigned to the EC2 instances"
+  value       = module.ec2.public_dns
+}
