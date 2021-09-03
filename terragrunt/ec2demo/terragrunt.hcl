@@ -4,8 +4,7 @@ terraform {
 
 inputs = {
   sg_rules = [
-    "22,tcp,179.6.32.76/32",
-    "8080,tcp,0.0.0.0/0"
+    "22,tcp,0.0.0.0/0"
   ]
 
   assign_public_ip = true
@@ -14,7 +13,7 @@ inputs = {
   instance_count   = 1
   desired_os       = "Ubuntu Server 18.04"
   instance_type    = "t3a.micro"
-  user_data        = file("user_data.sh")
+  # user_data        = file("user_data.sh")
 
   tags = {
     "owner"     = "arengifoc"
